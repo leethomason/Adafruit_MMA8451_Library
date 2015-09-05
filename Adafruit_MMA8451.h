@@ -25,7 +25,7 @@
 
 #include <Wire.h>
 
-#define USE_SENSOR    // Support the sesor library; comment out to compile/run without sensor library.
+//#define USE_SENSOR    // Support the sesor library; comment out to compile/run without sensor library.
 #ifdef USE_SENSOR
 #include <Adafruit_Sensor.h>
 #endif
