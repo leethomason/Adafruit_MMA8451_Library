@@ -117,4 +117,5 @@ class Adafruit_MMA8451
   uint8_t readRegister8(uint8_t reg);
   int32_t _sensorID;
   int8_t  _i2caddr;
+  int8_t  _lastRange;
 };

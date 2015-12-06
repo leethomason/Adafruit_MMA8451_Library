@@ -82,6 +82,7 @@ uint8_t Adafruit_MMA8451::readRegister8(uint8_t reg) {
 /**************************************************************************/
 Adafruit_MMA8451::Adafruit_MMA8451(int32_t sensorID) {
   _sensorID = sensorID;
+  _lastRange = 0;
 }
 
 /**************************************************************************/
@@ -148,9 +149,10 @@ void Adafruit_MMA8451::read(void) {
 
   uint8_t range = getRange();
   uint16_t divider = 1;
+
   if (range == MMA8451_RANGE_8_G) divider = 1024;
-  if (range == MMA8451_RANGE_4_G) divider = 2048;
-  if (range == MMA8451_RANGE_2_G) divider = 4096;
+  else if (range == MMA8451_RANGE_4_G) divider = 2048;
+  else if (range == MMA8451_RANGE_2_G) divider = 4096;
 
   x_g = (float)x / divider;
   y_g = (float)y / divider;
@@ -179,6 +181,7 @@ void Adafruit_MMA8451::setRange(mma8451_range_t range)
   writeRegister8(MMA8451_REG_CTRL_REG1, 0x00);            // deactivate
   writeRegister8(MMA8451_REG_XYZ_DATA_CFG, range & 0x3);
   writeRegister8(MMA8451_REG_CTRL_REG1, reg1 | 0x01);     // activate
+  _lastRange = range;
 }
 
 /**************************************************************************/
@@ -189,7 +192,15 @@ void Adafruit_MMA8451::setRange(mma8451_range_t range)
 mma8451_range_t Adafruit_MMA8451::getRange(void)
 {
   /* Read the data format register to preserve bits */
-  return (mma8451_range_t)(readRegister8(MMA8451_REG_XYZ_DATA_CFG) & 0x03);
+  int r = (mma8451_range_t)(readRegister8(MMA8451_REG_XYZ_DATA_CFG) & 0x03);
+  if (r == 3) {
+    //Serial.println("RANGE ERROR.");
+    r = _lastRange;
+  }
+  else {
+    _lastRange = r;
+  }
+  return (mma8451_range_t)r;
 }
 
 /**************************************************************************/
